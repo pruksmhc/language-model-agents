@@ -1,3 +1,6 @@
+"""
+ python3 minimal_trainer.py --output_dir output --model_name_or_path facebook/xglm-1.7B  --tokenizer_name  facebook/xglm-1.7B
+"""
 #!/usr/bin/env python
 # coding=utf-8
 # Copyright 2020 The HuggingFace Inc. team. All rights reserved.
@@ -211,8 +214,8 @@ def main():
     # These datasets should be pretokenized and in the format of the toy dataset in (rallio_toy.zip)
     # A separate script to create datasets from text is available on the github.
     
-    train_dataset = load_from_disk("custom_train") # replace custom_train with your path
-    eval_dataset = load_from_disk("custom_eval") # replace custom eval with your path
+    train_dataset = load_from_disk("my_train_data") # replace custom_train with your path
+    eval_dataset = load_from_disk("my_eval_data") # replace custom eval with your path
 
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
@@ -227,7 +230,8 @@ def main():
             json_file=os.path.abspath(sys.argv[1]))
     else:
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
-
+    training_args.do_train = True
+    training_args.do_teval = True
     # Detecting last checkpoint.
     last_checkpoint = None
     if os.path.isdir(training_args.output_dir) and training_args.do_train and not training_args.overwrite_output_dir:
@@ -341,7 +345,6 @@ def main():
         data_collator=default_data_collator,
 
     )
-
     # Training
     if training_args.do_train:
         if last_checkpoint is not None:
@@ -369,6 +372,7 @@ def main():
         metrics["perplexity"] = perplexity
         trainer.log_metrics("eval", metrics)
         trainer.save_metrics("eval", metrics)
+        breakpoint()
 
 
 def _mp_fn(index):
